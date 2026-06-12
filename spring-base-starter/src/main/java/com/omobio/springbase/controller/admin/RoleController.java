@@ -6,6 +6,7 @@ import com.omobio.springbase.common.response.ApiResponse;
 import com.omobio.springbase.dto.role.CreateRoleDTO;
 import com.omobio.springbase.dto.role.FilterRoleDTO;
 import com.omobio.springbase.dto.role.ResponseRoleDTO;
+import com.omobio.springbase.dto.role.UpdateRoleDTO;
 import com.omobio.springbase.service.RoleService;
 import com.omobio.springbase.util.abst.Guard;
 import com.omobio.springbase.util.constants.Prefixes;
@@ -38,6 +39,12 @@ public class RoleController {
         return roleService.findAll(new FilterRoleDTO(name, page, perPage));
     }
 
+    @Guard({CorePermissions.VIEW_ROLE_DROPDOWN})
+    @GetMapping("/dropdown")
+    public ApiResponse<List<ResponseRoleDTO>> findAllForDropdown() {
+        return new ApiResponse<>(roleService.findAllForDropdown(), "Roles fetched successfully");
+    }
+
     @Guard({CorePermissions.VIEW_ROLE})
     @GetMapping("/{id}")
     public ApiResponse<?> findById(
@@ -46,9 +53,18 @@ public class RoleController {
         return new ApiResponse<>(roleService.findById(id, withPermissions), "Role fetched successfully");
     }
 
-    @Guard({CorePermissions.VIEW_ROLE_DROPDOWN})
-    @GetMapping("/dropdown")
-    public ApiResponse<List<ResponseRoleDTO>> findAllForDropdown() {
-        return new ApiResponse<>(roleService.findAllForDropdown(), "Roles fetched successfully");
+    @Guard({CorePermissions.UPDATE_ROLE})
+    @PutMapping("/{id}")
+    public ApiResponse<ResponseRoleDTO> update(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateRoleDTO dto) {
+        return new ApiResponse<>(roleService.update(id, dto), "Role updated successfully");
+    }
+
+    @Guard({CorePermissions.DELETE_ROLE})
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> delete(@PathVariable UUID id) {
+        roleService.delete(id);
+        return new ApiResponse<>("Role deleted successfully");
     }
 }

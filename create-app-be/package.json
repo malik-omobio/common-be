@@ -1,6 +1,6 @@
 {
   "name": "@omobio/create-app-be",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Scaffold Spring Boot backend services from the Omobio spring-base-starter platform",
   "type": "module",
   "license": "MIT",

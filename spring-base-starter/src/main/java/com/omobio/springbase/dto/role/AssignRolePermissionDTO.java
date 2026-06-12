@@ -1,9 +1,9 @@
 package com.omobio.springbase.dto.role;
 
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -11,6 +11,6 @@ import java.util.UUID;
 public class AssignRolePermissionDTO {
     @NotNull
     private UUID roleId;
-    @NotEmpty
-    private List<UUID> permissionIds;
+    @NotNull
+    private List<UUID> permissionIds = new ArrayList<>();
 }

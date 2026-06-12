@@ -14,4 +14,5 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
     boolean existsByEmail(String email);
     List<User> findByStatus(UserStatus status);
     List<User> findAllByRoleId(UUID roleId);
+    long countByRoleId(UUID roleId);
 }

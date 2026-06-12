@@ -12,6 +12,8 @@ public final class CorePermissions {
 
     public static final String VIEW_ROLE = "VIEW_ROLE";
     public static final String CREATE_ROLE = "CREATE_ROLE";
+    public static final String UPDATE_ROLE = "UPDATE_ROLE";
+    public static final String DELETE_ROLE = "DELETE_ROLE";
     public static final String ASSIGN_ROLE_PERMISSION = "ASSIGN_ROLE_PERMISSION";
     public static final String VIEW_ROLE_DROPDOWN = "VIEW_ROLE_DROPDOWN";
 }

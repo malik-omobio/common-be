@@ -17,7 +17,7 @@ npx @omobio/create-app-be@latest my-hr-service -y --template service-crud
 
 | FE template | BE template | Live API pages |
 |-------------|-------------|----------------|
-| `admin-portal` | `service-crud` | Login, Users, **Employees** |
+| `admin-portal` | `service-crud` | Login, Users, Roles, Employees — CRUD + privilege assignment |
 | `sor` | `service-blank` | Login only (SOR UI uses demo data) |
 
 Both use port **8081** and seed **admin@example.com** / **admin123**.

@@ -22,6 +22,8 @@ public class CorePermissionCatalog implements PermissionCatalog {
         categories.put("Role", Map.of(
                 CorePermissions.VIEW_ROLE, "View Role",
                 CorePermissions.CREATE_ROLE, "Create Role",
+                CorePermissions.UPDATE_ROLE, "Update Role",
+                CorePermissions.DELETE_ROLE, "Delete Role",
                 CorePermissions.ASSIGN_ROLE_PERMISSION, "Assign Role Permission",
                 CorePermissions.VIEW_ROLE_DROPDOWN, "View Role Dropdown"
         ));

@@ -141,8 +141,11 @@ Default `server.port=8081` in generated templates matches the Vite proxy in `@om
 | FE page | BE endpoint | Template |
 |---------|-------------|----------|
 | Login | `POST /api/v1/admin/auth/login` | service-blank or service-crud |
-| Users | `GET /api/v1/admin/users` | starter (both templates) |
-| Employees | `GET /api/v1/admin/employees` | **service-crud** only |
+| Users | `GET/POST/PUT /api/v1/admin/users` | starter (both templates) |
+| User permissions | `GET /api/v1/admin/users/{id}?withPermissions=true`, `POST /api/v1/admin/permissions/user-assign` | starter |
+| Roles | `GET/POST/PUT/DELETE /api/v1/admin/roles` | starter |
+| Role permissions | `GET /api/v1/admin/roles/{id}?withPermissions=true`, `POST /api/v1/admin/permissions/role-assign` | starter |
+| Employees | `GET/POST/PUT/DELETE /api/v1/admin/employees` | **service-crud** only |
 
 Seed credentials (both templates): **admin@example.com** / **admin123**
 

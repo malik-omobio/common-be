@@ -6,8 +6,10 @@ import com.omobio.springbase.dto.role.CreateRoleDTO;
 import com.omobio.springbase.dto.role.FilterRoleDTO;
 import com.omobio.springbase.dto.role.ResponseRoleDTO;
 import com.omobio.springbase.dto.role.ResponseRolePermissionDTO;
+import com.omobio.springbase.dto.role.UpdateRoleDTO;
 import com.omobio.springbase.model.Role;
 import com.omobio.springbase.repository.RoleRepository;
+import com.omobio.springbase.repository.UserRepository;
 import com.omobio.springbase.service.PermissionService;
 import com.omobio.springbase.service.RoleService;
 import com.omobio.springbase.specification.RoleSpecification;
@@ -26,6 +28,7 @@ import java.util.UUID;
 public class RoleServiceImpl implements RoleService {
 
     private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
     private final PermissionService permissionService;
 
     @Override
@@ -64,6 +67,38 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public List<ResponseRoleDTO> findAllForDropdown() {
         return roleRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public ResponseRoleDTO update(UUID id, UpdateRoleDTO dto) {
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Role not found", HttpStatus.NOT_FOUND));
+
+        String roleName = dto.getName().trim().toUpperCase();
+        roleRepository.findByName(roleName).ifPresent(existing -> {
+            if (!existing.getId().equals(id)) {
+                throw new CustomException(roleName + " already exists", HttpStatus.CONFLICT);
+            }
+        });
+
+        role.setName(roleName);
+        return toResponse(roleRepository.save(role));
+    }
+
+    @Override
+    public void delete(UUID id) {
+        Role role = roleRepository.findById(id)
+                .orElseThrow(() -> new CustomException("Role not found", HttpStatus.NOT_FOUND));
+
+        if ("ADMIN".equals(role.getName())) {
+            throw new CustomException("Cannot delete the ADMIN role", HttpStatus.FORBIDDEN);
+        }
+
+        if (userRepository.countByRoleId(id) > 0) {
+            throw new CustomException("Cannot delete role assigned to users", HttpStatus.CONFLICT);
+        }
+
+        roleRepository.delete(role);
     }
 
     private ResponseRoleDTO toResponse(Role role) {
