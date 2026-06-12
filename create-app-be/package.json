@@ -20,13 +20,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/omobio-sl/common-be.git",
+    "url": "git+ssh://git@github.com/malik-omobio/common-be.git",
     "directory": "create-app-be"
   },
   "bugs": {
-    "url": "https://github.com/omobio-sl/common-be/issues"
+    "url": "https://github.com/malik-omobio/common-be/issues"
   },
-  "homepage": "https://github.com/omobio-sl/common-be/tree/main/create-app-be#readme",
+  "homepage": "https://github.com/malik-omobio/common-be/tree/main/create-app-be#readme",
   "bin": {
     "create-app-be": "dist/bin/index.js"
   },

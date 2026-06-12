@@ -53,7 +53,7 @@
     <repositories>
         <repository>
             <id>github</id>
-            <url>https://maven.pkg.github.com/chathuram-omobio/common-be</url>
+            <url>https://maven.pkg.github.com/malik-omobio/common-be</url>
         </repository>
     </repositories>
 

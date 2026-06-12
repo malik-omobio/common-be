@@ -99,7 +99,9 @@ Publish from this repo:
 # or: mvn -pl spring-base-starter clean deploy
 ```
 
-Package URL: `https://maven.pkg.github.com/chathuram-omobio/common-be`
+Package URL: `https://maven.pkg.github.com/malik-omobio/common-be`
+
+Git remote: `git@github.com:malik-omobio/common-be.git`
 
 ## Extending a generated app
 
