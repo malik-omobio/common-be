@@ -1,0 +1,6 @@
+{
+  "createAppBe": {
+    "template": "service-crud",
+    "starterVersion": "__STARTER_VERSION__"
+  }
+}

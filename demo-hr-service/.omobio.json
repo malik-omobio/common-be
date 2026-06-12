@@ -1,0 +1,9 @@
+{
+  "createAppBe": {
+    "template": "service-crud",
+    "starterVersion": "1.0.0-SNAPSHOT",
+    "basePackage": "com.demo.hr",
+    "version": "1.0.0",
+    "createdAt": "2026-06-12T12:17:30.618Z"
+  }
+}

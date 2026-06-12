@@ -1,0 +1,697 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-demo-hr-service-collection",
+    "name": "Spring Base API",
+    "description": "Employee Management API — layered Spring Boot backend.\n\n**Setup:**\n1. Run `docker compose up -d`\n2. Run app with `mvn spring-boot:run -Dspring-boot.run.profiles=dev,seed`\n3. Run **Admin Login** first — token is saved automatically.\n\n**Default admin:** admin@example.com / admin123",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "refreshToken",
+      "value": ""
+    },
+    {
+      "key": "employeeId",
+      "value": ""
+    },
+    {
+      "key": "roleId",
+      "value": ""
+    },
+    {
+      "key": "userId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "health"]
+            },
+            "description": "Public health endpoint — no auth required."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth (Admin)",
+      "item": [
+        {
+          "name": "Admin Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    const { accessToken, refreshToken } = json.data;",
+                  "    if (accessToken) {",
+                  "        pm.collectionVariables.set('accessToken', accessToken);",
+                  "        console.log('accessToken saved to collection variables');",
+                  "    }",
+                  "    if (refreshToken) {",
+                  "        pm.collectionVariables.set('refreshToken', refreshToken);",
+                  "        console.log('refreshToken saved to collection variables');",
+                  "    }",
+                  "}",
+                  "",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Access token returned', () => {",
+                  "    pm.expect(pm.response.json().data.accessToken).to.be.a('string');",
+                  "});",
+                  "pm.test('Refresh token returned', () => {",
+                  "    pm.expect(pm.response.json().data.refreshToken).to.be.a('string');",
+                  "});",
+                  "pm.test('Permissions returned', () => {",
+                  "    pm.expect(pm.response.json().data.permissions).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@example.com\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "auth", "login"]
+            },
+            "description": "Login as admin. Saves `accessToken` and `refreshToken` to collection variables automatically."
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Refresh Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const json = pm.response.json();",
+                  "    const { accessToken, refreshToken } = json.data;",
+                  "    if (accessToken) pm.collectionVariables.set('accessToken', accessToken);",
+                  "    if (refreshToken) pm.collectionVariables.set('refreshToken', refreshToken);",
+                  "}",
+                  "",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('New access token returned', () => {",
+                  "    pm.expect(pm.response.json().data.accessToken).to.be.a('string');",
+                  "});",
+                  "pm.test('New refresh token returned', () => {",
+                  "    pm.expect(pm.response.json().data.refreshToken).to.be.a('string');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "auth", "refresh"]
+            },
+            "description": "Exchange a valid refresh token for new access and refresh tokens. Uses `refreshToken` from Admin Login."
+          },
+          "response": []
+        },
+        {
+          "name": "Admin Logout",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "auth", "logout"]
+            },
+            "description": "Blacklist current JWT token. Requires Bearer token."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Roles (Admin)",
+      "item": [
+        {
+          "name": "Create Role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const id = pm.response.json().data.id;",
+                  "    if (id) pm.collectionVariables.set('roleId', id);",
+                  "}",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"MANAGER\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/roles",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "roles"]
+            },
+            "description": "Permission: CREATE_ROLE"
+          },
+          "response": []
+        },
+        {
+          "name": "List Roles",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/roles?page=0&perPage=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "roles"],
+              "query": [
+                { "key": "name", "value": "", "disabled": true },
+                { "key": "page", "value": "0" },
+                { "key": "perPage", "value": "10" }
+              ]
+            },
+            "description": "Permission: VIEW_ROLE"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Role with Permissions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/roles/{{roleId}}?withPermissions=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "roles", "{{roleId}}"],
+              "query": [{ "key": "withPermissions", "value": "true" }]
+            },
+            "description": "Permission: VIEW_ROLE"
+          },
+          "response": []
+        },
+        {
+          "name": "Roles Dropdown",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/roles/dropdown",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "roles", "dropdown"]
+            },
+            "description": "Permission: VIEW_ROLE_DROPDOWN"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Users (Admin)",
+      "item": [
+        {
+          "name": "Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const id = pm.response.json().data.id;",
+                  "    if (id) pm.collectionVariables.set('userId', id);",
+                  "}",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"manager@example.com\",\n  \"password\": \"manager123\",\n  \"roleId\": \"{{roleId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/users",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "users"]
+            },
+            "description": "Permission: CREATE_USER. Copies role permissions to the new user."
+          },
+          "response": []
+        },
+        {
+          "name": "List Users",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/users?page=0&perPage=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "users"],
+              "query": [
+                { "key": "email", "value": "", "disabled": true },
+                { "key": "roleId", "value": "", "disabled": true },
+                { "key": "status", "value": "ACTIVE", "disabled": true },
+                { "key": "page", "value": "0" },
+                { "key": "perPage", "value": "10" }
+              ]
+            },
+            "description": "Permission: VIEW_USER"
+          },
+          "response": []
+        },
+        {
+          "name": "Get User with Permissions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/users/{{userId}}?withPermissions=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "users", "{{userId}}"],
+              "query": [{ "key": "withPermissions", "value": "true" }]
+            },
+            "description": "Permission: VIEW_USER"
+          },
+          "response": []
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/users/{{userId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "users", "{{userId}}"]
+            },
+            "description": "Permission: UPDATE_USER"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Permissions (Admin)",
+      "item": [
+        {
+          "name": "Assign Role Permissions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleId\": \"{{roleId}}\",\n  \"permissionIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/permissions/role-assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "permissions", "role-assign"]
+            },
+            "description": "Permission: ASSIGN_ROLE_PERMISSION. Replace permissionIds with UUIDs from Get Role with Permissions."
+          },
+          "response": []
+        },
+        {
+          "name": "Assign User Permissions",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+            },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"permissionIds\": []\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/permissions/user-assign",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "permissions", "user-assign"]
+            },
+            "description": "Permission: ASSIGN_USER_PERMISSION. Replace permissionIds with UUIDs from Get User with Permissions."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Employees (Admin)",
+      "item": [
+        {
+          "name": "Create Employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const id = pm.response.json().data.id;",
+                  "    if (id) pm.collectionVariables.set('employeeId', id);",
+                  "}",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"firstName\": \"Alex\",\n  \"lastName\": \"Johnson\",\n  \"email\": \"alex.johnson@company.com\",\n  \"department\": \"Engineering\",\n  \"jobTitle\": \"Backend Developer\",\n  \"salary\": 82000,\n  \"status\": \"ACTIVE\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/employees",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "employees"]
+            },
+            "description": "Permission: CREATE_EMPLOYEE"
+          },
+          "response": []
+        },
+        {
+          "name": "List Employees",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/employees?page=0&perPage=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "employees"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "department",
+                  "value": "Engineering",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "perPage",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Permission: VIEW_EMPLOYEE\n\nOptional filters: search, department, status (ACTIVE | INACTIVE)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get Employee by ID",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/employees/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "employees", "{{employeeId}}"]
+            },
+            "description": "Permission: VIEW_EMPLOYEE\n\nUses `employeeId` from Create Employee response."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Employee",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"jobTitle\": \"Senior Backend Developer\",\n  \"salary\": 95000,\n  \"department\": \"Engineering\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/employees/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "employees", "{{employeeId}}"]
+            },
+            "description": "Permission: UPDATE_EMPLOYEE\n\nAll fields are optional in the request body."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Employee",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/admin/employees/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "admin", "employees", "{{employeeId}}"]
+            },
+            "description": "Permission: DELETE_EMPLOYEE"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Employees (Web — Public)",
+      "item": [
+        {
+          "name": "List Employees (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/web/employees?page=0&perPage=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "web", "employees"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "department",
+                  "value": "",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "ACTIVE",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "0"
+                },
+                {
+                  "key": "perPage",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Public read-only — no auth required."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Employee by ID (Public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/web/employees/{{employeeId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["v1", "web", "employees", "{{employeeId}}"]
+            },
+            "description": "Public read-only — no auth required."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  }
+}

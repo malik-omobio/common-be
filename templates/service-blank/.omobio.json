@@ -1,0 +1,6 @@
+{
+  "createAppBe": {
+    "template": "service-blank",
+    "starterVersion": "__STARTER_VERSION__"
+  }
+}

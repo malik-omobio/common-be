@@ -1,0 +1,65 @@
+{
+  "name": "@omobio/create-app-be",
+  "version": "1.0.0",
+  "description": "Scaffold Spring Boot backend services from the Omobio spring-base-starter platform",
+  "type": "module",
+  "license": "MIT",
+  "author": "Omobio",
+  "keywords": [
+    "spring-boot",
+    "java",
+    "maven",
+    "cli",
+    "generator",
+    "backend",
+    "jwt",
+    "rbac"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/omobio-sl/common-be.git",
+    "directory": "create-app-be"
+  },
+  "bugs": {
+    "url": "https://github.com/omobio-sl/common-be/issues"
+  },
+  "homepage": "https://github.com/omobio-sl/common-be/tree/main/create-app-be#readme",
+  "bin": {
+    "create-app-be": "dist/bin/index.js"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "files": [
+    "dist",
+    "templates",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare-publish": "node scripts/prepare-publish.mjs",
+    "prepublishOnly": "npm run build && npm run prepare-publish",
+    "prepack": "npm run build && npm run prepare-publish",
+    "pack:check": "npm run prepack && npm pack --dry-run",
+    "publish:npm": "npm publish --registry https://registry.npmjs.org/",
+    "start": "tsx bin/index.ts"
+  },
+  "dependencies": {
+    "chalk": "^5.3.0",
+    "execa": "^9.3.0",
+    "fs-extra": "^11.2.0",
+    "ora": "^8.0.1",
+    "prompts": "^2.4.2"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.1",
+    "@types/prompts": "^2.4.9",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}
