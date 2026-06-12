@@ -27,6 +27,8 @@ public class UserSeeder {
     public void seedAdmin(Role adminRole) {
         userRepository.findByEmail(adminEmail).ifPresentOrElse(
                 user -> {
+                    user.setStatus(UserStatus.ACTIVE);
+                    user.setRole(adminRole);
                     user.getPermissions().removeAll(adminRole.getPermissions());
                     userRepository.save(user);
                 },
