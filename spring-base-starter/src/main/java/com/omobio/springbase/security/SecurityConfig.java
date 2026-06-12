@@ -49,7 +49,9 @@ public class SecurityConfig {
 
     @Bean
     @ConditionalOnMissingBean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(
+            HttpSecurity http,
+            CorsConfigurationSource corsConfigurationSource) throws Exception {
         List<String> excluded = new ArrayList<>(CORE_EXCLUDED_PATHS);
         for (String path : extraExcludedPaths) {
             if (!path.isBlank()) {
@@ -57,7 +59,7 @@ public class SecurityConfig {
             }
         }
         return http
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
