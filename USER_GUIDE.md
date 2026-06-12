@@ -134,6 +134,29 @@ app.security.excluded-paths=/api/v1/web/my-resource,/api/v1/web/my-resource/**
 app.cors.allowed-origins=http://localhost:5173
 ```
 
+Default `server.port=8081` in generated templates matches the Vite proxy in `@omobio/create-app-ui` (`/api` → `http://localhost:8081`).
+
+### Pair with admin-portal (FE)
+
+| FE page | BE endpoint | Template |
+|---------|-------------|----------|
+| Login | `POST /api/v1/admin/auth/login` | service-blank or service-crud |
+| Users | `GET /api/v1/admin/users` | starter (both templates) |
+| Employees | `GET /api/v1/admin/employees` | **service-crud** only |
+
+Seed credentials (both templates): **admin@example.com** / **admin123**
+
+```bash
+# Backend
+npx @omobio/create-app-be@latest my-api -y --template service-crud
+cd my-api && docker compose up -d
+mvn spring-boot:run "-Dspring-boot.run.profiles=dev,seed"
+
+# Frontend (separate repo / folder)
+npx @omobio/create-app-ui@latest my-app -y --template admin-portal
+cd my-app && npm install && npm run dev
+```
+
 ## Full-stack alignment (FE + BE)
 
 | FE (`@omobio/create-app-ui`) | BE (`@omobio/create-app-be`) |
@@ -143,6 +166,7 @@ app.cors.allowed-origins=http://localhost:5173
 | Mock login → wire to API | `/api/v1/admin/auth/login` |
 | `localhost:5173` | CORS preconfigured |
 | Users page | `/api/v1/admin/users` (starter) |
+| Employees page (admin-portal) | `/api/v1/admin/employees` (service-crud) |
 | Domain pages | Your controllers in app package |
 
 ## Developing the platform (this repo)

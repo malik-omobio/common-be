@@ -10,8 +10,17 @@ npx @omobio/create-app-be@latest my-hr-service -y --template service-crud
 
 ### Templates
 
-- **service-blank** — JWT auth, RBAC platform, health endpoint
-- **service-crud** — blank + Employee CRUD reference implementation
+- **service-blank** — JWT auth, RBAC platform, health endpoint (pairs with FE `sor` or `blank`)
+- **service-crud** — blank + Employee CRUD (pairs with FE `admin-portal` Employees page)
+
+### Full-stack with `@omobio/create-app-ui`
+
+| FE template | BE template | Live API pages |
+|-------------|-------------|----------------|
+| `admin-portal` | `service-crud` | Login, Users, **Employees** |
+| `sor` | `service-blank` | Login only (SOR UI uses demo data) |
+
+Both use port **8081** and seed **admin@example.com** / **admin123**.
 
 ### Options
 
